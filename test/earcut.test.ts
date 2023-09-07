@@ -32,12 +32,9 @@ Object.keys(expected.triangles).forEach((id) => {
     const expectedDeviation = expected.errors[id] || 0
 
     const numTriangles = indices.length / 3
-    // t.ok(numTriangles === expectedTriangles, numTriangles + ' triangles when expected ' + expectedTriangles)
     expect(numTriangles).toBe(expectedTriangles)
 
     if (expectedTriangles > 0) {
-      // t.ok(actualDeviation <= expectedDeviation,
-      //   'deviation ' + actualDeviation + ' <= ' + expectedDeviation)
       expect(actualDeviation).toBeLessThanOrEqual(expectedDeviation)
     }
   })
