@@ -21,6 +21,8 @@ npm install earcut
 pnpm add earcut
 # Yarn
 yarn add earcut
+# Bun
+bun add earcut
 ```
 
 ## The Algorithm
