@@ -10,21 +10,21 @@ const expected = JSON.parse(fs.readFileSync(path.join(_dirname, 'expected.json')
 
 test('indices-2d', () => {
   const indices = earcut([10, 0, 0, 50, 60, 60, 70, 10])
-  expect(indices).toBeArray([1, 0, 3, 3, 2, 1])
+  expect(indices).toEqual([1, 0, 3, 3, 2, 1])
 })
 
 test('indices-3d', () => {
   const indices = earcut([10, 0, 0, 0, 50, 0, 60, 60, 0, 70, 10, 0], undefined, 3)
-  expect(indices).toBeArray([1, 0, 3, 3, 2, 1])
+  expect(indices).toEqual([1, 0, 3, 3, 2, 1])
 })
 
 test('empty', () => {
-  expect(earcut([])).toBeArray([])
+  expect(earcut([])).toEqual([])
 })
 
 Object.keys(expected.triangles).forEach((id) => {
   test(id, () => {
-    const data = flatten(JSON.parse(fs.readFileSync(path.join(_dirname, '/fixtures/' + id + '.json'))))
+    const data = flatten(JSON.parse(fs.readFileSync(path.join(_dirname, '/fixtures/' + id + '.json'), 'utf-8')))
     const indices = earcut(data.vertices, data.holeIndices, data.dim)
     const actualDeviation = deviation(data.vertices, data.holeIndices, data.dim, indices)
     const expectedTriangles = expected.triangles[id]
@@ -45,5 +45,5 @@ Object.keys(expected.triangles).forEach((id) => {
 
 test('infinite-loop', () => {
   const indices = earcut([1, 2, 2, 2, 1, 2, 1, 1, 1, 2, 4, 1, 5, 1, 3, 2, 4, 2, 4, 1], [5], 2)
-  expect(indices).toBeArray([])
+  expect(indices).toEqual([8, 5, 6])
 })
