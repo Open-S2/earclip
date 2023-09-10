@@ -28,7 +28,7 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "build": "rm -rf dist && mkdir dist && bun build.ts",
-    "types:bundle": "tsc --emitDeclarationOnly --declaration ./src/index.ts --outDir ./dist",
+    "types:bundle": "tsc --project tsconfig.build.json",
     "prepare": "bun run lint+test+build",
     "package-check": "package-check",
     "test": "bun test",
