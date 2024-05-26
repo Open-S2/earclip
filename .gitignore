@@ -3,3 +3,6 @@ dist
 featureCollections
 out.json
 switchTest.js
+tsconfig.tsbuildinfo
+.DS_Store
+target/

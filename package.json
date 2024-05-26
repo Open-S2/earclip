@@ -1,6 +1,6 @@
 {
   "name": "earclip",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "description": "Triangle mesh designed to be fast, efficient, and sphere capable.",
   "type": "module",
   "keywords": [
@@ -24,37 +24,46 @@
     "dist"
   ],
   "scripts": {
-    "lint+test+build": "bun run lint && bun run test && bun run build && bun run types:bundle",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "build": "rm -rf dist && mkdir dist && bun build.ts",
-    "types:bundle": "tsc --project tsconfig.build.json",
-    "prepare": "bun run lint+test+build",
+    "lint+build+test+docs+test:cov": "bun run lint && bun run build && bun run test && bun run docs && bun run test:cov",
+    "lint": "eslint src test",
+    "lint:fix": "bun run lint -- --fix",
+    "prettier": "bunx prettier src test tools benchmarks --check",
+    "prettier:fix": "bunx prettier -- --write",
+    "format": "bunx prettier:fix && bun run lint:fix",
+    "build": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && tsc && bun run build.ts",
+    "types:bundle": "bun run types:build && node scripts/types.mjs",
+    "prepublishOnly": "bun run lint+build+test+docs+test:cov",
     "package-check": "package-check",
+    "test:dev": "bun test --watch --coverage",
     "test": "bun test",
-    "test:dev": "bun test --watch"
+    "test:coverage": "bun run test --coverage",
+    "test:cov": "bun run tools/buildCoverage.ts",
+    "docs": "typedoc"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/S2-Maps/earclip.git"
   },
   "author": "Craig OConnor",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/S2-Maps/earclip/issues"
   },
   "homepage": "https://github.com/S2-Maps/earclip#readme",
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
-    "@typescript-eslint/parser": "latest",
-    "bun-types": "^0.8.1",
-    "es-abstract": "^1.21.2",
-    "eslint": "^8.44.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-config-standard-with-typescript": "^36.0.0",
-    "tap-summary": "^4.0.0",
-    "tape": "^5.6.4",
-    "ts-standard": "*",
-    "typescript": "latest"
+    "@types/bun": "^1.1.1",
+    "@types/node": "^20.12.11",
+    "@types/pbf": "^3.0.5",
+    "eslint": "^9.3.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsdoc": "^48.2.4",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "prettier": "^3.2.5",
+    "typedoc": "^0.25.13",
+    "typedoc-plugin-coverage": "^3.1.1",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.8.0"
   }
 }

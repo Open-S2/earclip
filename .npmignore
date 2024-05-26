@@ -6,3 +6,6 @@ out.json
 switchTest.js
 test.js
 newTriangle.gif
+tsconfig.tsbuildinfo
+.DS_Store
+target/

@@ -1,0 +1,11 @@
+[test]
+
+# preload options
+# preload = []
+
+# root directory
+root = "./test"
+
+# always enable coverage
+# windows tests fails when using coverage
+# coverage = true

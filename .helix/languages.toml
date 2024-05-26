@@ -1,0 +1,49 @@
+[[language]]
+name = "rust"
+auto-format = true
+language-servers = ["rust-analyzer", "gpt"]
+roots = ["Cargo.toml", "Cargo.lock"]
+rulers = [100]
+
+[language-server.rust-analyzer.config]
+inlayHints.bindingModeHints.enable = false
+inlayHints.closingBraceHints.minLines = 10
+inlayHints.closureReturnTypeHints.enable = "with_block"
+inlayHints.discriminantHints.enable = "fieldless"
+inlayHints.lifetimeElisionHints.enable = "skip_trivial"
+inlayHints.typeHints.hideClosureInitialization = false
+
+[language-server.eslint]
+command = "vscode-eslint-language-server"
+args = ["--stdio"]
+
+[language-server.eslint.config]
+codeActionsOnSave = { mode = "all", "source.fixAll.eslint" = true }
+format = { enable = true }
+nodePath = ""
+quiet = false
+rulesCustomizations = []
+run = "onType"
+validate = "on"
+experimental = {}
+problems = { shortenToSingleLine = false }
+
+[[language]]
+name = "typescript"
+language-servers = ["typescript-language-server", "eslint", "emmet-ls", "gpt"]
+formatter = { command = "prettier", args = ["--parser", "typescript"] }
+auto-format = true
+rulers = [100]
+
+[[language]]
+name = "javascript"
+language-servers = ["typescript-language-server", "eslint", "emmet-ls", "gpt"]
+formatter = { command = "prettier", args = ["--parser", "typescript"] }
+auto-format = true
+rulers = [100]
+
+[[language]]
+name = "json"
+language-servers = ["gpt"]
+formatter = { command = "prettier", args = ["--parser", "json"] }
+auto-format = true
