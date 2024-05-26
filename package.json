@@ -42,14 +42,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/S2-Maps/earclip.git"
+    "url": "https://github.com/Open-S2/earclip.git"
   },
   "author": "Craig OConnor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/S2-Maps/earclip/issues"
+    "url": "https://github.com/Open-S2/earclip/issues"
   },
-  "homepage": "https://github.com/S2-Maps/earclip#readme",
+  "homepage": "https://github.com/Open-S2/earclip#readme",
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
     "@types/bun": "^1.1.1",

@@ -21,12 +21,7 @@ test('empty', async () => {
 
 Object.keys(expected.triangles).forEach((id) => {
   test(id, async () => {
-    // const data = flatten(
-    //   JSON.parse(fs.readFileSync(path.join(_dirname, '/fixtures/' + id + '.json'), 'utf-8')),
-    // );
-    const data = flatten(
-      await Bun.file(`${__dirname}/fixtures/${id}.json`).json(),
-    )
+    const data = flatten(await Bun.file(`${__dirname}/fixtures/${id}.json`).json());
     const indices = earcut(data.vertices, data.holeIndices, data.dim);
     const actualDeviation = deviation(data.vertices, data.holeIndices, data.dim, indices);
     const expectedTriangles = expected.triangles[id];
