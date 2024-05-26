@@ -20,6 +20,8 @@ exclude = [
     "/test",
     "/tools",
     "/src",
+    ".github",
+    ".helix"
 ]
 
 [lib]
