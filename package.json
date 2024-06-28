@@ -54,6 +54,7 @@
     "@types/bun": "^1.1.1",
     "@types/node": "^20.12.11",
     "@types/pbf": "^3.0.5",
+    "coveralls": "^3.1.1",
     "eslint": "^9.3.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^48.2.4",
