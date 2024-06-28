@@ -8,4 +8,9 @@ root = "./test"
 
 # always enable coverage
 # windows tests fails when using coverage
-# coverage = true
+coverage = true
+
+# new
+# coverageReporter = ["text", "lcov"]  # default ["text"]
+coverageReporter = ["lcov"]  # default ["text"]
+coverageDir = "./coverage"  # default "coverage"

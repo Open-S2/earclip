@@ -1,12 +1,6 @@
 name: test-workflow
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on: push
 
 jobs:
   test:
@@ -24,7 +18,7 @@ jobs:
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: 1.1.8
+        bun-version: 1.1.16
 
     - name: Install dependencies
       run: bun install

@@ -1,0 +1,82 @@
+name: coveralls
+
+on: push
+
+jobs:
+  test:
+    name: Coveralls Upload
+    runs-on: ubuntu-latest
+    
+    # setup
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: 1.1.16
+
+    - name: Install dependencies
+      run: bun install
+
+    # Bun tests
+
+    - name: Run JavaScript/TypeScript tests
+      run: bun run test
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    # setup rust
+
+    - name: Install Clippy
+      run: rustup component add clippy
+
+    - name: Install llvm-tools-preview
+      run: rustup component add llvm-tools-preview
+
+    - name: Install grcov
+      run: |
+        sudo apt-get install lcov
+        cargo install grcov
+
+    - name: Build Rust project
+      run: cargo build
+      shell: bash
+    
+    # Rust tests
+
+    - name: Run Rust tests with coverage
+      run: |
+        export CARGO_INCREMENTAL=0
+        export RUSTFLAGS='-Cinstrument-coverage'
+        export LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw'
+        cargo test
+        grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing -o ./coverage/rust-lcov.info
+      shell: bash
+
+    # Merge LCOV reports 
+
+    - name: Merge Bun and Rust LCOV reports
+      run: |
+        mkdir -p coverage
+        if [ -f ./coverage/lcov.info ] && [ -f ./coverage/rust-lcov.info ]; then
+          cat ./coverage/rust-lcov.info >> ./coverage/lcov.info
+        elif [ -f ./coverage/rust-lcov.info ]; then
+          mv ./coverage/rust-lcov.info ./coverage/lcov.info
+        fi
+    
+    # upload to Coveralls
+
+    - name: Upload coverage to Coveralls
+      run: |
+        if [ -f ./coverage/lcov.info ]; then
+          bun run coveralls < ./coverage/lcov.info
+        fi
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}

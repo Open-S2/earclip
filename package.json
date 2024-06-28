@@ -24,7 +24,7 @@
     "dist"
   ],
   "scripts": {
-    "lint+build+test+docs+test:cov": "bun run lint && bun run build && bun run test && bun run docs && bun run test:cov",
+    "lint+build+test+docs": "bun run lint && bun run build && bun run test && bun run docs",
     "lint": "eslint src test",
     "lint:fix": "bun run lint -- --fix",
     "prettier": "bunx prettier src test tools benchmarks --check",
@@ -32,12 +32,11 @@
     "format": "bunx prettier:fix && bun run lint:fix",
     "build": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && tsc && bun run build.ts",
     "types:bundle": "bun run types:build && node scripts/types.mjs",
-    "prepublishOnly": "bun run lint+build+test+docs+test:cov",
+    "prepublishOnly": "bun run lint+build+test+docs",
     "package-check": "package-check",
     "test:dev": "bun test --watch --coverage",
     "test": "bun test",
     "test:coverage": "bun run test --coverage",
-    "test:cov": "bun run tools/buildCoverage.ts",
     "docs": "typedoc"
   },
   "repository": {

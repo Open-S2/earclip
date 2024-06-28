@@ -1,22 +1,36 @@
-# earclip ![GitHub Actions Workflow Status][test-workflow] [![npm][npm-image]][npm-url] [![crate][crate-image]][crate-url] [![downloads][downloads-image]][downloads-url] [![bundle][bundle-image]][bundle-url] [![docs-ts][docs-ts-image]][docs-ts-url] [![docs-rust][docs-rust-image]][docs-rust-url] ![doc-coverage][doc-coverage-image] ![code-coverage][code-coverage-image] [![Discord][discord-image]][discord-url]
+<h1 style="text-align: center;">
+    <div align="center">earclip</div>
+</h1>
 
-[test-workflow]: https://img.shields.io/github/actions/workflow/status/Open-S2/earclip/test.yml?logo=github
-[npm-image]: https://img.shields.io/npm/v/earclip.svg?logo=npm&logoColor=white
-[npm-url]: https://npmjs.org/package/earclip
-[crate-image]: https://img.shields.io/crates/v/earclip.svg?logo=rust&logoColor=white
-[crate-url]: https://crates.io/crates/earclip
-[bundle-image]: https://img.shields.io/bundlejs/size/earclip?exports=earclip
-[bundle-url]: https://bundlejs.com/?q=earclip&treeshake=%5B%7B+earclip+%7D%5D
-[downloads-image]: https://img.shields.io/npm/dm/earclip.svg
-[downloads-url]: https://www.npmjs.com/package/earclip
-[docs-ts-image]: https://img.shields.io/badge/docs-typescript-yellow.svg
-[docs-ts-url]: https://open-s2.github.io/earclip/
-[docs-rust-image]: https://img.shields.io/badge/docs-rust-yellow.svg
-[docs-rust-url]: https://docs.rs/earclip
-[doc-coverage-image]: https://raw.githubusercontent.com/Open-S2/earclip/master/assets/doc-coverage.svg
-[code-coverage-image]: https://raw.githubusercontent.com/Open-S2/earclip/master/assets/code-coverage.svg
-[discord-image]: https://img.shields.io/discord/953563031701426206?logo=discord&logoColor=white
-[discord-url]: https://discord.opens2.com
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/Open-S2/earclip/test.yml?logo=github" alt="GitHub Actions Workflow Status">
+  <a href="https://npmjs.org/package/earclip">
+    <img src="https://img.shields.io/npm/v/earclip.svg?logo=npm&logoColor=white" alt="npm">
+  </a>
+  <a href="https://crates.io/crates/earclip">
+    <img src="https://img.shields.io/crates/v/earclip.svg?logo=rust&logoColor=white" alt="crate">
+  </a>
+  <a href="https://www.npmjs.com/package/earclip">
+    <img src="https://img.shields.io/npm/dm/earclip.svg" alt="downloads">
+  </a>
+  <a href="https://bundlejs.com/?q=earclip&treeshake=%5B%7B+earclip+%7D%5D">
+    <img src="https://img.shields.io/bundlejs/size/earclip?exports=earclip" alt="bundle">
+  </a>
+  <a href="https://open-s2.github.io/earclip/">
+    <img src="https://img.shields.io/badge/docs-typescript-yellow.svg" alt="docs-ts">
+  </a>
+  <a href="https://docs.rs/earclip">
+    <img src="https://img.shields.io/badge/docs-rust-yellow.svg" alt="docs-rust">
+  </a>
+  <img src="https://raw.githubusercontent.com/Open-S2/earclip/master/assets/doc-coverage.svg" alt="doc-coverage">
+  <img src="https://raw.githubusercontent.com/Open-S2/earclip/master/assets/code-coverage.svg" alt="code-coverage">
+  <a href="https://coveralls.io/github/Open-S2/earclip?branch=master">
+    <img src="https://coveralls.io/repos/github/Open-S2/earclip/badge.svg?branch=master" alt="code-coverage">
+  </a>
+  <a href="https://discord.opens2.com">
+    <img src="https://img.shields.io/discord/953563031701426206?logo=discord&logoColor=white" alt="Discord">
+  </a>
+</p>
 
 ## About
 
