@@ -1,4 +1,4 @@
-import earcut from '../src/earcut';
+import { earcut } from '../src';
 
 import { deviation, flatten } from '../src/index';
 import { expect, test } from 'bun:test';

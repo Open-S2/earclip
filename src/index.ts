@@ -1,5 +1,7 @@
 import earcut from './earcut';
 
+export { earcut };
+
 /** Result from earclip tesselation */
 export interface EarclipResult {
   /** The flattened vertices */
