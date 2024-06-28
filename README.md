@@ -23,7 +23,6 @@
     <img src="https://img.shields.io/badge/docs-rust-yellow.svg" alt="docs-rust">
   </a>
   <img src="https://raw.githubusercontent.com/Open-S2/earclip/master/assets/doc-coverage.svg" alt="doc-coverage">
-  <img src="https://raw.githubusercontent.com/Open-S2/earclip/master/assets/code-coverage.svg" alt="code-coverage">
   <a href="https://coveralls.io/github/Open-S2/earclip?branch=master">
     <img src="https://coveralls.io/repos/github/Open-S2/earclip/badge.svg?branch=master" alt="code-coverage">
   </a>
