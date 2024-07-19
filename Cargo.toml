@@ -16,7 +16,6 @@ license = "MIT"
 exclude = [
     "/assets",
     "/benchmarks",
-    "/benches",
     "/coverage",
     "/docs",
     "/tests",
