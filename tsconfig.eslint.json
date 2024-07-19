@@ -109,7 +109,7 @@
     "eslint.config.mjs",
     "build.ts",
     "src/**/*.ts",
-    "test/**/*.ts",
+    "tests/**/*.ts",
     "tools/**/*.ts"
   ]
 }

@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "lint+build+test+docs": "bun run lint && bun run build && bun run test && bun run docs",
-    "lint": "eslint src test",
+    "lint": "eslint src tests",
     "lint:fix": "bun run lint -- --fix",
     "prettier": "bunx prettier src test tools benchmarks --check",
     "prettier:fix": "bunx prettier -- --write",

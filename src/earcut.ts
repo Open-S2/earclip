@@ -13,7 +13,7 @@ class Node {
   /** next node in a polygon ring */
   next: Node;
   /** z-order curve value */
-  z!: number;
+  z: number = 0;
   /** previous node in z-order */
   prevZ: null | Node = null;
   /** next node in z-order */
@@ -106,13 +106,14 @@ function linkedList(
   dim: number,
   clockwise: boolean,
 ): Node {
-  let i: undefined | number;
   let last: null | Node = null;
 
   if (clockwise === signedArea(data, start, end, dim) > 0) {
-    for (i = start; i < end; i += dim) last = new Node(i, data[i], data[i + 1], last);
+    for (let i = start; i < end; i += dim)
+      last = new Node((i / dim) | 0, data[i], data[i + 1], last);
   } else {
-    for (i = end - dim; i >= start; i -= dim) last = new Node(i, data[i], data[i + 1], last);
+    for (let i = end - dim; i >= start; i -= dim)
+      last = new Node((i / dim) | 0, data[i], data[i + 1], last);
   }
 
   if (last !== null && equals(last, last.next)) {
@@ -187,9 +188,7 @@ function earcutLinked(
 
     if (invSize !== 0 ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
       // cut off the triangle
-      triangles.push(prev.i / dim);
-      triangles.push(ear.i / dim);
-      triangles.push(next.i / dim);
+      triangles.push(prev.i, ear.i, next.i);
 
       removeNode(ear);
 
@@ -210,7 +209,7 @@ function earcutLinked(
 
         // if this didn't work, try curing all small self-intersections locally
       } else if (pass === 1) {
-        ear = cureLocalIntersections(filterPoints(ear), triangles, dim);
+        ear = cureLocalIntersections(filterPoints(ear), triangles);
         earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
 
         // as a last resort, try splitting the remaining polygon into two
@@ -229,17 +228,36 @@ function earcutLinked(
  * @returns - true if it is an ear, false otherwise
  */
 function isEar(ear: Node): boolean {
-  const a = ear.prev;
-  const b = ear;
-  const c = ear.next;
+  const a = ear.prev,
+    b = ear,
+    c = ear.next;
 
   if (area(a, b, c) >= 0) return false; // reflex, can't be an ear
 
   // now make sure we don't have other points inside the potential ear
-  let p = ear.next.next;
+  const ax = a.x,
+    bx = b.x,
+    cx = c.x,
+    ay = a.y,
+    by = b.y,
+    cy = c.y;
 
-  while (p !== ear.prev) {
-    if (pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) && area(p.prev, p, p.next) >= 0)
+  // triangle bbox; min & max are calculated like this for speed
+  const x0 = ax < bx ? (ax < cx ? ax : cx) : bx < cx ? bx : cx,
+    y0 = ay < by ? (ay < cy ? ay : cy) : by < cy ? by : cy,
+    x1 = ax > bx ? (ax > cx ? ax : cx) : bx > cx ? bx : cx,
+    y1 = ay > by ? (ay > cy ? ay : cy) : by > cy ? by : cy;
+
+  let p = c.next;
+  while (p !== a) {
+    if (
+      p.x >= x0 &&
+      p.x <= x1 &&
+      p.y >= y0 &&
+      p.y <= y1 &&
+      pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) &&
+      area(p.prev, p, p.next) >= 0
+    )
       return false;
     p = p.next;
   }
@@ -261,34 +279,49 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
 
   if (area(a, b, c) >= 0) return false; // reflex, can't be an ear
 
+  const ax = a.x;
+  const bx = b.x;
+  const cx = c.x;
+  const ay = a.y;
+  const by = b.y;
+  const cy = c.y;
+
   // triangle bbox; min & max are calculated like this for speed
-  const minTX = a.x < b.x ? (a.x < c.x ? a.x : c.x) : b.x < c.x ? b.x : c.x;
-  const minTY = a.y < b.y ? (a.y < c.y ? a.y : c.y) : b.y < c.y ? b.y : c.y;
-  const maxTX = a.x > b.x ? (a.x > c.x ? a.x : c.x) : b.x > c.x ? b.x : c.x;
-  const maxTY = a.y > b.y ? (a.y > c.y ? a.y : c.y) : b.y > c.y ? b.y : c.y;
+  const x0 = ax < bx ? (ax < cx ? ax : cx) : bx < cx ? bx : cx;
+  const y0 = ay < by ? (ay < cy ? ay : cy) : by < cy ? by : cy;
+  const x1 = ax > bx ? (ax > cx ? ax : cx) : bx > cx ? bx : cx;
+  const y1 = ay > by ? (ay > cy ? ay : cy) : by > cy ? by : cy;
 
   // z-order range for the current triangle bbox;
-  const minZ = zOrder(minTX, minTY, minX, minY, invSize);
-  const maxZ = zOrder(maxTX, maxTY, minX, minY, invSize);
+  const minZ = zOrder(x0, y0, minX, minY, invSize);
+  const maxZ = zOrder(x1, y1, minX, minY, invSize);
 
   let p = ear.prevZ;
   let n = ear.nextZ;
 
   // look for points inside the triangle in both directions
-  while (p !== null && n !== null && p.z >= minZ && n.z <= maxZ) {
+  while (p && p.z >= minZ && n && n.z <= maxZ) {
     if (
-      p !== ear.prev &&
-      p !== ear.next &&
-      pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
+      p.x >= x0 &&
+      p.x <= x1 &&
+      p.y >= y0 &&
+      p.y <= y1 &&
+      p !== a &&
+      p !== c &&
+      pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) &&
       area(p.prev, p, p.next) >= 0
     )
       return false;
     p = p.prevZ;
 
     if (
-      n !== ear.prev &&
-      n !== ear.next &&
-      pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, n.x, n.y) &&
+      n.x >= x0 &&
+      n.x <= x1 &&
+      n.y >= y0 &&
+      n.y <= y1 &&
+      n !== a &&
+      n !== c &&
+      pointInTriangle(ax, ay, bx, by, cx, cy, n.x, n.y) &&
       area(n.prev, n, n.next) >= 0
     )
       return false;
@@ -296,11 +329,15 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
   }
 
   // look for remaining points in decreasing z-order
-  while (p !== null && p.z >= minZ) {
+  while (p && p.z >= minZ) {
     if (
-      p !== ear.prev &&
-      p !== ear.next &&
-      pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
+      p.x >= x0 &&
+      p.x <= x1 &&
+      p.y >= y0 &&
+      p.y <= y1 &&
+      p !== a &&
+      p !== c &&
+      pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) &&
       area(p.prev, p, p.next) >= 0
     )
       return false;
@@ -308,11 +345,15 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
   }
 
   // look for remaining points in increasing z-order
-  while (n !== null && n.z <= maxZ) {
+  while (n && n.z <= maxZ) {
     if (
-      n !== ear.prev &&
-      n !== ear.next &&
-      pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, n.x, n.y) &&
+      n.x >= x0 &&
+      n.x <= x1 &&
+      n.y >= y0 &&
+      n.y <= y1 &&
+      n !== a &&
+      n !== c &&
+      pointInTriangle(ax, ay, bx, by, cx, cy, n.x, n.y) &&
       area(n.prev, n, n.next) >= 0
     )
       return false;
@@ -326,10 +367,9 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
  * go through all polygon nodes and cure small local self-intersections
  * @param start - starting node in the linked list
  * @param triangles - array of triangles
- * @param dim - number of dimensions
  * @returns - the node post cure
  */
-function cureLocalIntersections(start: Node, triangles: number[], dim: number): Node {
+function cureLocalIntersections(start: Node, triangles: number[]): Node {
   let p = start;
   do {
     const a = p.prev;
@@ -341,9 +381,7 @@ function cureLocalIntersections(start: Node, triangles: number[], dim: number): 
       locallyInside(a, b) &&
       locallyInside(b, a)
     ) {
-      triangles.push(a.i / dim);
-      triangles.push(p.i / dim);
-      triangles.push(b.i / dim);
+      triangles.push(a.i, p.i, b.i);
 
       // remove two nodes involved
       removeNode(p);
@@ -354,7 +392,7 @@ function cureLocalIntersections(start: Node, triangles: number[], dim: number): 
     p = p.next;
   } while (p !== start);
 
-  return p;
+  return filterPoints(p);
 }
 
 // try splitting polygon into two and triangulate them independently
@@ -409,12 +447,10 @@ function splitEarcut(
 function eliminateHoles(data: number[], holeIndices: number[], outerNode: Node, dim: number): Node {
   const queue = [];
 
-  let i: number, len: number, start: number, end: number, list: Node;
-
-  for (i = 0, len = holeIndices.length; i < len; i++) {
-    start = holeIndices[i] * dim;
-    end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
-    list = linkedList(data, start, end, dim, false);
+  for (let i = 0, len = holeIndices.length; i < len; i++) {
+    const start = holeIndices[i] * dim;
+    const end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
+    const list = linkedList(data, start, end, dim, false);
     if (list === list.next) list.steiner = true;
     queue.push(getLeftmost(list));
   }
@@ -422,9 +458,8 @@ function eliminateHoles(data: number[], holeIndices: number[], outerNode: Node, 
   queue.sort(compareX);
 
   // process holes from left to right
-  for (i = 0; i < queue.length; i++) {
+  for (let i = 0; i < queue.length; i++) {
     outerNode = eliminateHole(queue[i], outerNode);
-    outerNode = filterPoints(outerNode, outerNode.next);
   }
 
   return outerNode;
@@ -446,17 +481,15 @@ function compareX(a: Node, b: Node): number {
  * @returns - the bridge Node
  */
 function eliminateHole(hole: Node, outerNode: Node): Node {
-  const holeBridge = findHoleBridge(hole, outerNode);
-  if (holeBridge === null) {
+  const bridge = findHoleBridge(hole, outerNode);
+  if (bridge === null) {
     return outerNode;
-  } else {
-    const bridgeReverse = splitPolygon(holeBridge, hole);
-    // filter collinear points around the cuts
-    const filteredBridge = filterPoints(holeBridge, holeBridge.next);
-    filterPoints(bridgeReverse, bridgeReverse.next);
-    // Check if input node was removed by the filtering
-    return outerNode === holeBridge ? filteredBridge : outerNode;
   }
+
+  const bridgeReverse = splitPolygon(bridge, hole);
+  // filter collinear points around the cuts
+  filterPoints(bridgeReverse, bridgeReverse.next);
+  return filterPoints(bridge, bridge.next);
 }
 
 /**
@@ -479,19 +512,14 @@ function findHoleBridge(hole: Node, outerNode: Node): null | Node {
       const x = p.x + ((hy - p.y) * (p.next.x - p.x)) / (p.next.y - p.y);
       if (x <= hx && x > qx) {
         qx = x;
-        if (x === hx) {
-          if (hy === p.y) return p;
-          if (hy === p.next.y) return p.next;
-        }
         m = p.x < p.next.x ? p : p.next;
+        if (x === hx) return m; // hole touches outer segment; pick leftmost endpoint
       }
     }
     p = p.next;
   } while (p !== outerNode);
 
-  if (m === undefined) return null;
-
-  if (hx === qx) return m; // hole touches outer segment; pick leftmost endpoint
+  if (!m) return null;
 
   // look for points inside the triangle of hole point, segment intersection and endpoint;
   // if there are no points found, we have a valid connection;
@@ -501,7 +529,6 @@ function findHoleBridge(hole: Node, outerNode: Node): null | Node {
   const mx = m.x;
   const my = m.y;
   let tanMin = Infinity;
-  let tan;
 
   p = m;
 
@@ -512,15 +539,12 @@ function findHoleBridge(hole: Node, outerNode: Node): null | Node {
       hx !== p.x &&
       pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)
     ) {
-      tan = Math.abs(hy - p.y) / (hx - p.x); // tangential
+      const tan = Math.abs(hy - p.y) / (hx - p.x); // tangential
 
       if (
         locallyInside(p, hole) &&
         (tan < tanMin ||
-          (tan === tanMin &&
-            (p.x > m.x ||
-              // whether sector in vertex m contains sector in vertex p in the same coordinates
-              (p.x === m.x && area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0))))
+          (tan === tanMin && (p.x > m.x || (p.x === m.x && sectorContainsSector(m, p)))))
       ) {
         m = p;
         tanMin = tan;
@@ -534,6 +558,16 @@ function findHoleBridge(hole: Node, outerNode: Node): null | Node {
 }
 
 /**
+ * whether sector in vertex m contains sector in vertex p in the same coordinates
+ * @param m - first vertex
+ * @param p - second vertex
+ * @returns true if sector in vertex m contains sector in vertex p
+ */
+function sectorContainsSector(m: Node, p: Node): boolean {
+  return area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0;
+}
+
+/**
  * interlink polygon nodes in z-order
  * @param start - the polygon Node start
  * @param minX - x coordinate of the polygon's bounding box
@@ -543,7 +577,7 @@ function findHoleBridge(hole: Node, outerNode: Node): null | Node {
 function indexCurve(start: Node, minX: number, minY: number, invSize: number): void {
   let p = start;
   do {
-    if (p.z === undefined) p.z = zOrder(p.x, p.y, minX, minY, invSize);
+    if (p.z === 0) p.z = zOrder(p.x, p.y, minX, minY, invSize);
     p.prevZ = p.prev;
     p.nextZ = p.next;
     p = p.next;
@@ -628,8 +662,8 @@ function sortLinked(list: null | Node): null | Node {
  */
 function zOrder(x: number, y: number, minX: number, minY: number, invSize: number): number {
   // coords are transformed into non-negative 15-bit integer range
-  x = 32767 * (x - minX) * invSize;
-  y = 32767 * (y - minY) * invSize;
+  x = ((x - minX) * invSize) | 0;
+  y = ((y - minY) * invSize) | 0;
 
   x = (x | (x << 8)) & 0x00ff00ff;
   x = (x | (x << 4)) & 0x0f0f0f0f;
@@ -651,8 +685,8 @@ function zOrder(x: number, y: number, minX: number, minY: number, invSize: numbe
  */
 function getLeftmost(start: Node): Node {
   let p = start;
-
   let leftmost = start;
+
   do {
     if (p.x < leftmost.x || (p.x === leftmost.x && p.y < leftmost.y)) leftmost = p;
     p = p.next;

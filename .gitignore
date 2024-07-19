@@ -6,3 +6,4 @@ switchTest.js
 tsconfig.tsbuildinfo
 .DS_Store
 target/
+coverage/

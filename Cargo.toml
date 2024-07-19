@@ -16,6 +16,7 @@ license = "MIT"
 exclude = [
     "/assets",
     "/benchmarks",
+    "/coverage",
     "/docs",
     "/test",
     "/tools",
@@ -32,12 +33,16 @@ bench = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+num-traits = { version = "0.2" }
 
 [dev-dependencies]
+serde_json = { version = "1.0", features = ["float_roundtrip"] }
+serde = { version = "1.0", features = ["derive"] }
+criterion = "0.5"
 
-[features]
-default = ["std"]
-std = []
+[[bench]]
+name = "benchmark"
+harness = false
 
 [profile.bench]
 opt-level = 3

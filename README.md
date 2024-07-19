@@ -60,25 +60,6 @@ It's based on ideas from
 [FIST: Fast Industrial-Strength Triangulation of Polygons](http://www.cosy.sbg.ac.at/~held/projects/triang/triang.html) by Martin Held
 and [Triangulation by Ear Clipping](http://www.geometrictools.com/Documentation/TriangulationByEarClipping.pdf) by David Eberly.
 
-## Why another triangulation library?
-
-The aim of this project is to create a JS triangulation library
-that is **fast enough for real-time triangulation in the browser**,
-sacrificing triangulation quality for raw speed and simplicity,
-while being robust enough to handle most practical datasets without crashing or producing garbage.
-Some benchmarks using Node 0.12:
-
-(ops/sec)         | pts  | earcut    | libtess  | poly2tri | pnltri    | polyk
-------------------| ---- | --------- | -------- | -------- | --------- | ------
-OSM building      | 15   | _795,935_ | _50,640_ | _61,501_ | _122,966_ | _175,570_
-dude shape        | 94   | _35,658_  | _10,339_ | _8,784_  | _11,172_  | _13,557_
-holed dude shape  | 104  | _28,319_  | _8,883_  | _7,494_  | _2,130_   | n/a
-complex OSM water | 2523 | _543_     | _77.54_  | failure  | failure   | n/a
-huge OSM water    | 5667 | _95_      | _29.30_  | failure  | failure   | n/a
-
-If you want to get correct triangulation even on very bad data with lots of self-intersections
-and earcut is not precise enough, take a look at [libtess.js](https://github.com/brendankenny/libtess.js).
-
 ## Usage
 
 ```ts
@@ -145,3 +126,17 @@ cargo tarpaulin
 # bacon
 bacon coverage # or type `l` inside the tool
 ```
+
+## Benchmarks
+
+### Rust
+
+Run the Rust benchmarks using the following command:
+
+```bash
+cargo +nightly bench
+```
+
+<!-- ### Generating Coverage Report
+
+```bash -->

@@ -4,7 +4,7 @@
 # preload = []
 
 # root directory
-root = "./test"
+root = "./tests"
 
 # always enable coverage
 # windows tests fails when using coverage

@@ -120,14 +120,14 @@ function splitIfNecessary(
   // 1 is corner
   if (v1 < v2 && v1 < v3) {
     const modPoint = v1 + modulo - mod2(v1, modulo);
-    if (modPoint > v1 && modPoint <= v2 && modPoint <= v3 && (v2 !== modPoint || v2 !== modPoint)) {
+    if (modPoint > v1 && modPoint <= v2 && modPoint <= v3 && v2 !== modPoint) {
       return splitRight(modPoint, i1, i2, i3, v1, v2, v3, vertices, indices, dim, axis, modulo);
     }
   } else if (v1 > v2 && v1 > v3) {
     let mod = mod2(v1, modulo);
     if (mod === 0) mod = modulo;
     const modPoint = v1 - mod;
-    if (modPoint < v1 && modPoint >= v2 && modPoint >= v3 && (v2 !== modPoint || v2 !== modPoint)) {
+    if (modPoint < v1 && modPoint >= v2 && modPoint >= v3 && v2 !== modPoint) {
       return splitLeft(modPoint, i1, i2, i3, v1, v2, v3, vertices, indices, dim, axis, modulo);
     }
   }
