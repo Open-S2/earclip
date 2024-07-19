@@ -10,3 +10,4 @@ tsconfig.tsbuildinfo
 .DS_Store
 target/
 coverage/
+cobertura.xml

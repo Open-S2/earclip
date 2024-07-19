@@ -1,6 +1,17 @@
 #![no_std]
 #![deny(missing_docs)]
-//! The `earclip` Rust crate... TODO
+//! The `earclip` module is a tool to convert 2D and 3D polygons into a triangle mesh designed to be
+//! fast, efficient, and sphere capable.
+//!
+//! Basic usage:
+//! ```rust
+//! use earclip::earclip;
+//!
+//! let polygon = vec![vec![vec![0.0, 0.0, 0.0], vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 0.0]]];
+//! let (vertices, indices) = earclip::<f64, usize>(&polygon, None, None);
+//! assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
+//! assert_eq!(indices, vec![1, 2, 0]);
+//! ```
 
 extern crate alloc;
 
@@ -106,7 +117,7 @@ pub fn tesselate<T: Float, N: Index>(
                 indices[i] = new_triangle[0];
                 indices[i + 1] = new_triangle[1];
                 indices[i + 2] = new_triangle[2];
-                i = i.saturating_sub(3);
+                i -= 3;
             }
     
             i += 3;
@@ -307,12 +318,7 @@ fn split_left<T: Float, N: Index>(
 
 /// Returns x modulo n (supports negative numbers)
 fn mod2<T: Float>(x: T, n: T) -> T {
-    let result = x % n;
-    if result < T::zero() {
-        result + n
-    } else {
-        result
-    }
+    ((x % n) + n) % n
 }
 
 /// Flattens a 2D or 3D array whether its a flat point ([x, y, z]) or object ({ x, y, z })

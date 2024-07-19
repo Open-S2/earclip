@@ -1,6 +1,6 @@
 [package]
 name = "earclip"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "Triangle mesh designed to be fast, efficient, and sphere capable."
