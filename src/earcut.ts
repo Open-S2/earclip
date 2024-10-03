@@ -300,7 +300,7 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
   let n = ear.nextZ;
 
   // look for points inside the triangle in both directions
-  while (p && p.z >= minZ && n && n.z <= maxZ) {
+  while (p !== null && p.z >= minZ && n !== null && n.z <= maxZ) {
     if (
       p.x >= x0 &&
       p.x <= x1 &&
@@ -329,7 +329,7 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
   }
 
   // look for remaining points in decreasing z-order
-  while (p && p.z >= minZ) {
+  while (p !== null && p.z >= minZ) {
     if (
       p.x >= x0 &&
       p.x <= x1 &&
@@ -345,7 +345,7 @@ function isEarHashed(ear: Node, minX: number, minY: number, invSize: number): bo
   }
 
   // look for remaining points in increasing z-order
-  while (n && n.z <= maxZ) {
+  while (n !== null && n.z <= maxZ) {
     if (
       n.x >= x0 &&
       n.x <= x1 &&
@@ -519,7 +519,7 @@ function findHoleBridge(hole: Node, outerNode: Node): null | Node {
     p = p.next;
   } while (p !== outerNode);
 
-  if (!m) return null;
+  if (m === undefined) return null;
 
   // look for points inside the triangle of hole point, segment intersection and endpoint;
   // if there are no points found, we have a valid connection;

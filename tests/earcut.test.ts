@@ -15,7 +15,7 @@ test('indices-3d', () => {
   expect(indices).toEqual([1, 0, 3, 3, 2, 1]);
 });
 
-test('empty', async () => {
+test('empty', () => {
   expect(earcut([])).toEqual([]);
 });
 
@@ -26,7 +26,7 @@ Object.keys(expected.triangles).forEach((id) => {
     const actualDeviation = deviation(data.vertices, data.holeIndices, data.dim, indices);
     const expectedTriangles = expected.triangles[id];
 
-    const expectedDeviation = expected.errors[id] || 0;
+    const expectedDeviation = expected.errors[id] ?? 0;
 
     const numTriangles = indices.length / 3;
     expect(numTriangles).toBe(expectedTriangles);

@@ -24,6 +24,31 @@ export default tseslint.config(
   jsdoc.configs['flat/recommended-typescript'],
   {
     rules: {
+      // ensure explicit comparisons
+      eqeqeq: ['error', 'always'],
+      'no-implicit-coercion': ['error', { boolean: false, number: true, string: true }],
+      '@typescript-eslint/strict-boolean-expressions': [
+        'error',
+        {
+          allowString: false,
+          allowNumber: false,
+          allowNullableObject: false,
+          allowNullableBoolean: false,
+          allowNullableString: false,
+          allowNullableNumber: false,
+          allowAny: false,
+        },
+      ],
+      'no-extra-boolean-cast': 'error',
+      'no-constant-condition': ['error', { checkLoops: false }],
+      'no-unused-expressions': ['error', { allowTernary: true, allowShortCircuit: true }],
+      // manage promises correctly
+      '@typescript-eslint/no-misused-promises': 'error',
+      'no-async-promise-executor': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/prefer-promise-reject-errors': 'error',
+      '@typescript-eslint/promise-function-async': 'error',
+      'require-await': 'error',
       // console logs
       'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
       // https://github.com/gajus/eslint-plugin-jsdoc
