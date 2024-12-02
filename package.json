@@ -1,6 +1,6 @@
 {
   "name": "earclip",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Triangle mesh designed to be fast, efficient, and sphere capable.",
   "type": "module",
   "keywords": [

@@ -516,7 +516,7 @@ SF:src/index.ts
 FNF:11
 FNH:11
 DA:1,30
-DA:3,17
+DA:3,18
 DA:48,6
 DA:49,9
 DA:50,16
@@ -760,7 +760,7 @@ DA:433,55
 DA:434,61
 DA:435,11
 DA:436,1
-DA:438,12
+DA:438,11
 LF:440
 LH:234
 end_of_record

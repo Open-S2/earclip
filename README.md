@@ -123,6 +123,8 @@ To generate the coverage report, use the following command:
 
 ```bash
 cargo tarpaulin
+# faster
+cargo tarpaulin --color always --skip-clean
 # bacon
 bacon coverage # or type `l` inside the tool
 ```

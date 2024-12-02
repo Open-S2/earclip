@@ -105,11 +105,10 @@ impl<'a, T: Float> Store<'a, T> {
     pub fn new(
         data: &'a [T],
         nodes: &'a mut Vec<Node<T>>,
-        queue: &'a mut Vec<(NodeIndex, T)>
+        queue: &'a mut Vec<(NodeIndex, T)>,
     ) -> Self {
         let store = Self { data, nodes, queue };
-        store.nodes
-            .push(Node::new(0, [T::infinity(), T::infinity()])); // dummy node
+        store.nodes.push(Node::new(0, [T::infinity(), T::infinity()])); // dummy node
 
         store
     }
@@ -117,23 +116,20 @@ impl<'a, T: Float> Store<'a, T> {
     fn reset(&mut self, capacity: usize) {
         self.nodes.clear();
         self.nodes.reserve(capacity);
-        self.nodes
-            .push(Node::new(0, [T::infinity(), T::infinity()])); // dummy node
+        self.nodes.push(Node::new(0, [T::infinity(), T::infinity()])); // dummy node
     }
 }
 
 /// Performs the earcut triangulation on a polygon.
 /// The API is similar to the original JavaScript implementation, except you can provide a vector for the output indices.
-pub fn earcut<T: Float, N: Index>(
-    data: &[T],
-    hole_indices: &[N],
-    dim: usize,
-) -> Vec<N> {
+pub fn earcut<T: Float, N: Index>(data: &[T], hole_indices: &[N], dim: usize) -> Vec<N> {
     let nodes = &mut Vec::new();
     let queue = &mut Vec::new();
     let mut store = Store::new(data, nodes, queue);
     let mut triangles_out: Vec<N> = Vec::new();
-    if store.data.len() < 3 { return triangles_out; }
+    if store.data.len() < 3 {
+        return triangles_out;
+    }
     earcut_impl(&mut store, hole_indices, &mut triangles_out, dim);
 
     triangles_out
@@ -150,11 +146,8 @@ pub fn earcut_impl<T: Float, N: Index>(
     store.reset(store.data.len() / 2 * 3);
 
     let has_holes = !hole_indices.is_empty();
-    let outer_len: usize = if has_holes {
-        hole_indices[0].into_usize() * dim
-    } else {
-        store.data.len()
-    };
+    let outer_len: usize =
+        if has_holes { hole_indices[0].into_usize() * dim } else { store.data.len() };
 
     // create nodes
     let Some(mut outer_node_i) = linked_list(store, 0, outer_len, dim, true) else {
@@ -187,10 +180,18 @@ pub fn earcut_impl<T: Float, N: Index>(
         for i in (dim..outer_len).step_by(dim) {
             let x = store.data[i];
             let y = store.data[i + 1];
-            if x < min_x { min_x = x; }
-            if y < min_y { min_y = y; }
-            if x > max_x { max_x = x; }
-            if y > max_y { max_y = y; }
+            if x < min_x {
+                min_x = x;
+            }
+            if y < min_y {
+                min_y = y;
+            }
+            if x > max_x {
+                max_x = x;
+            }
+            if y > max_y {
+                max_y = y;
+            }
         }
 
         // Calculate inv_size used for z-order curve hash scaling
@@ -222,21 +223,33 @@ fn linked_list<T: Float>(
     start: usize,
     end: usize,
     dim: usize,
-    clockwise: bool
+    clockwise: bool,
 ) -> Option<NodeIndex> {
     let mut last_i: Option<NodeIndex> = None;
 
     if clockwise == (signed_area(store.data.borrow_mut(), start, end, dim) > T::zero()) {
         let mut i = start;
         while i < end {
-            last_i = Some(insert_node(store.nodes.borrow_mut(), i as u32, [store.data[i], store.data[i + 1]], last_i));
+            last_i = Some(insert_node(
+                store.nodes.borrow_mut(),
+                i as u32,
+                [store.data[i], store.data[i + 1]],
+                last_i,
+            ));
             i += dim;
         }
     } else {
         let mut i = end - dim;
         while i >= start {
-            last_i = Some(insert_node(store.nodes.borrow_mut(), i as u32, [store.data[i], store.data[i + 1]], last_i));
-            if i == 0 { break; } // Prevent underflow
+            last_i = Some(insert_node(
+                store.nodes.borrow_mut(),
+                i as u32,
+                [store.data[i], store.data[i + 1]],
+                last_i,
+            ));
+            if i == 0 {
+                break;
+            } // Prevent underflow
             i -= dim;
         }
     };
@@ -278,7 +291,8 @@ fn eliminate_holes<T: Float, N: Index>(
         }
     }
 
-    store.queue
+    store
+        .queue
         .sort_unstable_by(|(_a, ax), (_b, bx)| ax.partial_cmp(bx).unwrap_or(Ordering::Equal));
 
     // process holes from left to right
@@ -424,14 +438,8 @@ fn is_ear_hashed<'a, T: Float>(
     }
 
     // triangle bbox
-    let xy_min = [
-        a.xy[0].min(b.xy[0].min(c.xy[0])),
-        a.xy[1].min(b.xy[1].min(c.xy[1])),
-    ];
-    let xy_max = [
-        a.xy[0].max(b.xy[0].max(c.xy[0])),
-        a.xy[1].max(b.xy[1].max(c.xy[1])),
-    ];
+    let xy_min = [a.xy[0].min(b.xy[0].min(c.xy[0])), a.xy[1].min(b.xy[1].min(c.xy[1]))];
+    let xy_max = [a.xy[0].max(b.xy[0].max(c.xy[0])), a.xy[1].max(b.xy[1].max(c.xy[1]))];
 
     // z-order range for the current triangle bbox;
     let min_z = z_order(xy_min, min_x, min_y, inv_size);
@@ -863,11 +871,7 @@ fn find_hole_bridge<T: Float>(
                 + (hole.xy[1] - p.xy[1]) * (p_next.xy[0] - p.xy[0]) / (p_next.xy[1] - p.xy[1]);
             if x <= hole.xy[0] && x > qx {
                 qx = x;
-                m_i = Some(if p.xy[0] < p_next.xy[0] {
-                    p_i
-                } else {
-                    p.next_i
-                });
+                m_i = Some(if p.xy[0] < p_next.xy[0] { p_i } else { p.next_i });
                 if x == hole.xy[0] {
                     // hole touches outer segment; pick leftmost endpoint
                     return m_i;
@@ -898,15 +902,9 @@ fn find_hole_bridge<T: Float>(
     loop {
         if (((hole.xy[0] >= p.xy[0]) & (p.xy[0] >= mxmy[0])) && hole.xy[0] != p.xy[0])
             && point_in_triangle(
-                [
-                    if hole.xy[1] < mxmy[1] { hole.xy[0] } else { qx },
-                    hole.xy[1],
-                ],
+                [if hole.xy[1] < mxmy[1] { hole.xy[0] } else { qx }, hole.xy[1]],
                 mxmy,
-                [
-                    if hole.xy[1] < mxmy[1] { qx } else { hole.xy[0] },
-                    hole.xy[1],
-                ],
+                [if hole.xy[1] < mxmy[1] { qx } else { hole.xy[0] }, hole.xy[1]],
                 p.xy,
             )
         {
