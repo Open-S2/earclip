@@ -11,9 +11,8 @@ fn indices_2d() {
 
 #[test]
 fn indices_3d() {
-    let verts: Vec<f64> = Vec::from([
-        10.0, 0.0, 0.0, 0.0, 50.0, 0.0, 60.0, 60.0, 0.0, 70.0, 10.0, 0.0,
-    ]);
+    let verts: Vec<f64> =
+        Vec::from([10.0, 0.0, 0.0, 0.0, 50.0, 0.0, 60.0, 60.0, 0.0, 70.0, 10.0, 0.0]);
     let indices: Vec<u32> = earcut(&verts, &[], 3);
     assert_eq!(indices, vec![1, 0, 3, 3, 2, 1]);
 }
