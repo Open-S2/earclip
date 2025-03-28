@@ -39,13 +39,16 @@ The fastest and smallest JavaScript polygon triangulation library with builtin t
 
 ```bash
 # NPM
-npm install earcut
+npm install earclip
 # PNPM
-pnpm add earcut
+pnpm add earclip
 # Yarn
-yarn add earcut
+yarn add earclip
 # Bun
-bun add earcut
+bun add earclip
+
+# Rust
+cargo add earclip
 ```
 
 ## The Algorithm

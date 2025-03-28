@@ -1,4 +1,63 @@
-use earclip::earclip;
+use earclip::{convert_2d, convert_3d, earclip, Point2D, Point3D};
+
+#[test]
+fn convert_2d_test() {
+    struct P2D {
+        x: f64,
+        y: f64,
+    }
+    impl P2D {
+        fn new(x: f64, y: f64) -> Self {
+            Self { x, y }
+        }
+    }
+    impl Point2D for P2D {
+        fn x(&self) -> f64 {
+            self.x
+        }
+        fn y(&self) -> f64 {
+            self.y
+        }
+    }
+
+    let polygon = vec![vec![P2D::new(0.0, 0.0), P2D::new(1.0, 0.0), P2D::new(0.0, 1.0)]];
+    let poly_2d = convert_2d(&polygon);
+    let (vertices, indices) = earclip(&poly_2d, None, None);
+    assert_eq!(vertices, vec![0.0, 0.0, 1.0, 0.0, 0.0, 1.0]);
+    assert_eq!(indices, vec![1, 2, 0]);
+}
+
+#[test]
+fn convert_3d_test() {
+    struct P3D {
+        x: f64,
+        y: f64,
+        z: f64,
+    }
+    impl P3D {
+        fn new(x: f64, y: f64, z: f64) -> Self {
+            Self { x, y, z }
+        }
+    }
+    impl Point3D for P3D {
+        fn x(&self) -> f64 {
+            self.x
+        }
+        fn y(&self) -> f64 {
+            self.y
+        }
+        fn z(&self) -> f64 {
+            self.z
+        }
+    }
+
+    let polygon =
+        vec![vec![P3D::new(0.0, 0.0, 0.0), P3D::new(1.0, 0.0, 0.0), P3D::new(0.0, 1.0, 0.0)]];
+    let poly = convert_3d(&polygon);
+    let (vertices, indices) = earclip(&poly, None, None);
+    assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
+    assert_eq!(indices, vec![1, 2, 0]);
+}
 
 #[test]
 fn empty() {

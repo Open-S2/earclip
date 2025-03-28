@@ -9,7 +9,7 @@
 //! use earclip::earclip;
 //!
 //! let polygon = vec![vec![vec![0.0, 0.0, 0.0], vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 0.0]]];
-//! let (vertices, indices) = earclip::<f64, usize>(&polygon, None, None);
+//! let (vertices, indices) = earclip(&polygon, None, None);
 //! assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
 //! assert_eq!(indices, vec![1, 2, 0]);
 //! ```
