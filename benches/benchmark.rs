@@ -4,7 +4,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 use earclip::{earcut, flatten};
 
-fn load_fixture(name: &str) -> (Vec<f64>, Vec<u32>, usize) {
+fn load_fixture(name: &str) -> (Vec<f64>, Vec<usize>, usize) {
     // load JSON
     type Coords = Vec<Vec<Vec<f64>>>;
     let s = fs::read_to_string("./tests/fixtures/".to_string() + name + ".json").unwrap();

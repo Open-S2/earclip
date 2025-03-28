@@ -81,6 +81,9 @@ const res2 = earclip(polyAsPoints, modulo)
 assert(res === res2)
 ```
 
+> [!NOTE]  
+> Safety Unsafe code is forbidden by a #![forbid(unsafe_code)] attribute in the root of the rust library.
+
 ---
 
 ## Development

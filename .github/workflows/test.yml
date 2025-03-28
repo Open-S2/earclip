@@ -42,7 +42,7 @@ jobs:
       shell: bash
 
     - name: Run Clippy
-      run: cargo clippy --workspace --package geometry -- -D warnings
+      run: cargo clippy -- -D warnings
       shell: bash
 
     - name: Check Formatting

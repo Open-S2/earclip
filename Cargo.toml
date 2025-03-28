@@ -1,6 +1,6 @@
 [package]
 name = "earclip"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "Triangle mesh designed to be fast, efficient, and sphere capable."
@@ -27,13 +27,13 @@ exclude = [
 
 [lib]
 name = "earclip"
-path = "earclip/lib.rs"
+path = "rust/lib.rs"
 bench = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-num-traits = { version = "0.2" }
+libm = "0.2"
 
 [dev-dependencies]
 serde_json = { version = "1.0", features = ["float_roundtrip"] }

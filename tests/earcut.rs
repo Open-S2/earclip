@@ -5,7 +5,7 @@ use earclip::{deviation, earcut, flatten};
 #[test]
 fn indices_2d() {
     let verts: Vec<f64> = Vec::from([10.0, 0.0, 0.0, 50.0, 60.0, 60.0, 70.0, 10.0]);
-    let indices: Vec<u32> = earcut(&verts, &[], 2);
+    let indices: Vec<usize> = earcut(&verts, &[], 2);
     assert_eq!(indices, vec![1, 0, 3, 3, 2, 1]);
 }
 
@@ -13,15 +13,15 @@ fn indices_2d() {
 fn indices_3d() {
     let verts: Vec<f64> =
         Vec::from([10.0, 0.0, 0.0, 0.0, 50.0, 0.0, 60.0, 60.0, 0.0, 70.0, 10.0, 0.0]);
-    let indices: Vec<u32> = earcut(&verts, &[], 3);
+    let indices: Vec<usize> = earcut(&verts, &[], 3);
     assert_eq!(indices, vec![1, 0, 3, 3, 2, 1]);
 }
 
 #[test]
 fn empty() {
     let verts: Vec<f64> = Vec::new();
-    let indices: Vec<u32> = earcut(&verts, &[], 2);
-    let expected: Vec<u32> = Vec::new();
+    let indices: Vec<usize> = earcut(&verts, &[], 2);
+    let expected: Vec<usize> = Vec::new();
     assert_eq!(indices, expected);
 }
 
@@ -31,7 +31,7 @@ fn infinite_loop() {
         1.0, 2.0, 2.0, 2.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 4.0, 1.0, 5.0, 1.0, 3.0, 2.0, 4.0, 2.0,
         4.0, 1.0,
     ]);
-    let indices: Vec<u32> = earcut(&verts, &[5], 2);
+    let indices: Vec<usize> = earcut(&verts, &[5], 2);
     assert_eq!(indices, vec![8, 5, 6]);
 }
 
@@ -44,7 +44,7 @@ fn test_fixture(name: &str, num_triangles: usize, expected_deviation: f64) {
     // prepare input
     let (vertices, hole_indices, dim) = flatten(&expected); // dim => dimensions
 
-    let indices: Vec<u32> = earcut(&vertices, &hole_indices, dim);
+    let indices: Vec<usize> = earcut(&vertices, &hole_indices, dim);
 
     // check
     assert!(indices.len() == num_triangles * 3);

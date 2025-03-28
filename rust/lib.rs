@@ -1,4 +1,5 @@
 #![no_std]
+#![forbid(unsafe_code)]
 #![deny(missing_docs)]
 //! The `earclip` module is a tool to convert 2D and 3D polygons into a triangle mesh designed to be
 //! fast, efficient, and sphere capable.
@@ -19,74 +20,43 @@ extern crate alloc;
 pub mod earcut;
 
 use alloc::vec::Vec;
+use core::f64;
 pub use earcut::{earcut, signed_area};
-use num_traits::{Float, Unsigned};
-
-/// Index of a vertex
-pub trait Index: Copy + Unsigned {
-    /// Cast to usize
-    fn into_usize(self) -> usize;
-    /// Cast from usize
-    fn from_usize(v: usize) -> Self;
-}
-impl Index for u16 {
-    fn into_usize(self) -> usize {
-        self as usize
-    }
-    fn from_usize(v: usize) -> Self {
-        v as Self
-    }
-}
-impl Index for usize {
-    fn into_usize(self) -> usize {
-        self
-    }
-    fn from_usize(v: usize) -> Self {
-        v as Self
-    }
-}
-impl Index for u32 {
-    fn into_usize(self) -> usize {
-        self as usize
-    }
-    fn from_usize(v: usize) -> Self {
-        v as Self
-    }
-}
+use libm::fabs;
 
 /// A trait that must be implemented by any type that wants to represent a 2D point
-pub trait Point2D<T: Float> {
+pub trait Point2D {
     /// Get the x-coordinate
-    fn x(&self) -> T;
+    fn x(&self) -> f64;
     /// Get the y-coordinate
-    fn y(&self) -> T;
+    fn y(&self) -> f64;
 }
 
 /// A trait that must be implemented by any type that wants to represent a 3D point
-pub trait Point3D<T: Float> {
+pub trait Point3D {
     /// Get the x-coordinate
-    fn x(&self) -> T;
+    fn x(&self) -> f64;
     /// Get the y-coordinate
-    fn y(&self) -> T;
+    fn y(&self) -> f64;
     /// Get the z-coordinate
-    fn z(&self) -> T;
+    fn z(&self) -> f64;
 }
 
 /// An earcut polygon generator with tesselation support
-pub fn earclip<T: Float, N: Index>(
-    polygon: &[Vec<Vec<T>>],
-    modulo: Option<T>,
-    offset: Option<N>,
-) -> (Vec<T>, Vec<N>) {
-    let modulo = modulo.unwrap_or(T::infinity());
-    let offset = offset.unwrap_or(N::zero());
+pub fn earclip(
+    polygon: &[Vec<Vec<f64>>],
+    modulo: Option<f64>,
+    offset: Option<usize>,
+) -> (Vec<f64>, Vec<usize>) {
+    let modulo = modulo.unwrap_or(f64::INFINITY);
+    let offset = offset.unwrap_or(0);
 
     // Use earcut to build standard triangle set
     let (mut vertices, hole_indices, dim) = flatten(polygon); // dim => dimensions
     let mut indices = earcut(&vertices, &hole_indices, dim);
 
     // tesselate if necessary
-    if modulo != T::infinity() {
+    if modulo != f64::INFINITY {
         tesselate(&mut vertices, &mut indices, modulo, 2);
     }
 
@@ -97,18 +67,13 @@ pub fn earclip<T: Float, N: Index>(
 }
 
 /// Tesselates the flattened polygon
-pub fn tesselate<T: Float, N: Index>(
-    vertices: &mut Vec<T>,
-    indices: &mut Vec<N>,
-    modulo: T,
-    dim: usize,
-) {
-    for axis in 0..dim.into_usize() {
+pub fn tesselate(vertices: &mut Vec<f64>, indices: &mut Vec<usize>, modulo: f64, dim: usize) {
+    for axis in 0..dim {
         let mut i = 0;
         while i < indices.len() {
-            let a = indices[i].into_usize();
-            let b = indices[i + 1].into_usize();
-            let c = indices[i + 2].into_usize();
+            let a = indices[i];
+            let b = indices[i + 1];
+            let c = indices[i + 2];
 
             if let Some(new_triangle) =
                 split_if_necessary(a, b, c, vertices, indices, dim, axis, modulo)
@@ -127,16 +92,16 @@ pub fn tesselate<T: Float, N: Index>(
 /// given vertices, and an axis of said vertices:
 /// find a number "x" that is x % modulo == 0 and between v1 and v2
 #[allow(clippy::too_many_arguments)]
-fn split_if_necessary<T: Float, N: Index>(
+fn split_if_necessary(
     i1: usize,
     i2: usize,
     i3: usize,
-    vertices: &mut Vec<T>,
-    indices: &mut Vec<N>,
+    vertices: &mut Vec<f64>,
+    indices: &mut Vec<usize>,
     dim: usize,
     axis: usize,
-    modulo: T,
-) -> Option<[N; 3]> {
+    modulo: f64,
+) -> Option<[usize; 3]> {
     let v1 = vertices[i1 * dim + axis];
     let v2 = vertices[i2 * dim + axis];
     let v3 = vertices[i3 * dim + axis];
@@ -150,7 +115,7 @@ fn split_if_necessary<T: Float, N: Index>(
         }
     } else if v1 > v2 && v1 > v3 {
         let mut m2 = mod2(v1, modulo);
-        if m2.is_zero() {
+        if m2 == 0. {
             m2 = modulo;
         }
         let mod_point = v1 - m2;
@@ -174,7 +139,7 @@ fn split_if_necessary<T: Float, N: Index>(
         }
     } else if v2 > v1 && v2 > v3 {
         let mut m2 = mod2(v2, modulo);
-        if m2.is_zero() {
+        if m2 == 0. {
             m2 = modulo;
         }
         let mod_point = v2 - m2;
@@ -202,7 +167,7 @@ fn split_if_necessary<T: Float, N: Index>(
         }
     } else if v3 > v1 && v3 > v2 {
         let mut m2 = mod2(v3, modulo);
-        if m2.is_zero() {
+        if m2 == 0. {
             m2 = modulo;
         }
         let mod_point = v3 - m2;
@@ -222,13 +187,13 @@ fn split_if_necessary<T: Float, N: Index>(
 
 /// Creates a vertex at the specified split point, only manipulating the specified axis
 #[allow(clippy::too_many_arguments)]
-fn create_vertex<T: Float>(
-    split_point: T,
+fn create_vertex(
+    split_point: f64,
     i1: usize,
     i2: usize,
-    v1: T,
-    v2: T,
-    vertices: &mut Vec<T>,
+    v1: f64,
+    v2: f64,
+    vertices: &mut Vec<f64>,
     dim: usize,
     axis: usize,
 ) -> usize {
@@ -248,120 +213,120 @@ fn create_vertex<T: Float>(
 
 /// Splits triangles based on a modulo value and adjusts vertices
 #[allow(clippy::too_many_arguments)]
-fn split_right<T: Float, N: Index>(
-    mod_point: T,
+fn split_right(
+    mod_point: f64,
     i1: usize,
     i2: usize,
     i3: usize,
-    v1: T,
-    v2: T,
-    v3: T,
-    vertices: &mut Vec<T>,
-    indices: &mut Vec<N>,
+    v1: f64,
+    v2: f64,
+    v3: f64,
+    vertices: &mut Vec<f64>,
+    indices: &mut Vec<usize>,
     dim: usize,
     axis: usize,
-    modulo: T,
-) -> [N; 3] {
+    modulo: f64,
+) -> [usize; 3] {
     let mut mod_point = mod_point;
     // Creating the first set of split vertices
     let mut i12 = create_vertex(mod_point, i1, i2, v1, v2, vertices, dim, axis);
     let mut i13 = create_vertex(mod_point, i1, i3, v1, v3, vertices, dim, axis);
-    indices.extend([i1, i12, i13].map(N::from_usize));
+    indices.extend([i1, i12, i13]);
 
-    mod_point = mod_point + modulo;
+    mod_point += modulo;
 
     if v2 < v3 {
         while mod_point < v2 {
-            indices.extend([i13, i12].map(N::from_usize));
+            indices.extend([i13, i12]);
             i13 = create_vertex(mod_point, i1, i3, v1, v3, vertices, dim, axis);
-            indices.extend([i13, i13, i12].map(N::from_usize));
+            indices.extend([i13, i13, i12]);
             i12 = create_vertex(mod_point, i1, i2, v1, v2, vertices, dim, axis);
-            indices.push(N::from_usize(i12));
-            mod_point = mod_point + modulo;
+            indices.push(i12);
+            mod_point += modulo;
         }
-        indices.extend([i13, i12, i2].map(N::from_usize));
-        [i13, i2, i3].map(N::from_usize)
+        indices.extend([i13, i12, i2]);
+        [i13, i2, i3]
     } else {
         while mod_point < v3 {
-            indices.extend([i13, i12].map(N::from_usize));
+            indices.extend([i13, i12]);
             i13 = create_vertex(mod_point, i1, i3, v1, v3, vertices, dim, axis);
-            indices.extend([i13, i13, i12].map(N::from_usize));
+            indices.extend([i13, i13, i12]);
             i12 = create_vertex(mod_point, i1, i2, v1, v2, vertices, dim, axis);
-            indices.push(N::from_usize(i12));
-            mod_point = mod_point + modulo;
+            indices.push(i12);
+            mod_point += modulo;
         }
-        indices.extend([i13, i12, i3].map(N::from_usize));
-        [i3, i12, i2].map(N::from_usize)
+        indices.extend([i13, i12, i3]);
+        [i3, i12, i2]
     }
 }
 
 /// Splits triangles based on a modulo value and adjusts vertices
 #[allow(clippy::too_many_arguments)]
-fn split_left<T: Float, N: Index>(
-    mod_point: T,
+fn split_left(
+    mod_point: f64,
     i1: usize,
     i2: usize,
     i3: usize,
-    v1: T,
-    v2: T,
-    v3: T,
-    vertices: &mut Vec<T>,
-    indices: &mut Vec<N>,
+    v1: f64,
+    v2: f64,
+    v3: f64,
+    vertices: &mut Vec<f64>,
+    indices: &mut Vec<usize>,
     dim: usize,
     axis: usize,
-    modulo: T,
-) -> [N; 3] {
+    modulo: f64,
+) -> [usize; 3] {
     let mut mod_point = mod_point;
     // first case is a standalone triangle
     let mut i12 = create_vertex(mod_point, i1, i2, v1, v2, vertices, dim, axis);
     let mut i13 = create_vertex(mod_point, i1, i3, v1, v3, vertices, dim, axis);
-    indices.extend([i1, i12, i13].map(N::from_usize));
-    mod_point = mod_point - modulo;
+    indices.extend([i1, i12, i13]);
+    mod_point -= modulo;
     if v2 > v3 {
         // create lines up to i2
         while mod_point > v2 {
             // next triangles are i13->i12->nexti13 and nexti13->i12->nexti12 so store in necessary order
-            indices.extend([i13, i12].map(N::from_usize));
+            indices.extend([i13, i12]);
             i13 = create_vertex(mod_point, i1, i3, v1, v3, vertices, dim, axis);
-            indices.extend([i13, i13, i12].map(N::from_usize));
+            indices.extend([i13, i13, i12]);
             i12 = create_vertex(mod_point, i1, i2, v1, v2, vertices, dim, axis);
-            indices.push(N::from_usize(i12));
+            indices.push(i12);
             // increment
-            mod_point = mod_point - modulo;
+            mod_point -= modulo;
         }
         // add v2 triangle if necessary
-        indices.extend([i13, i12, i2].map(N::from_usize));
+        indices.extend([i13, i12, i2]);
         // return the remaining triangle
-        [i13, i2, i3].map(N::from_usize)
+        [i13, i2, i3]
     } else {
         // create lines up to i2
         while mod_point > v3 {
             // next triangles are i13->i12->nexti13 and nexti13->i12->nexti12 so store in necessary order
-            indices.extend([i13, i12].map(N::from_usize));
+            indices.extend([i13, i12]);
             i13 = create_vertex(mod_point, i1, i3, v1, v3, vertices, dim, axis);
-            indices.extend([i13, i13, i12].map(N::from_usize));
+            indices.extend([i13, i13, i12]);
             i12 = create_vertex(mod_point, i1, i2, v1, v2, vertices, dim, axis);
-            indices.push(N::from_usize(i12));
+            indices.push(i12);
             // increment
-            mod_point = mod_point - modulo;
+            mod_point -= modulo;
         }
         // add v3 triangle if necessary
-        indices.extend([i13, i12, i3].map(N::from_usize));
+        indices.extend([i13, i12, i3]);
         // return the remaining triangle
-        [i3, i12, i2].map(N::from_usize)
+        [i3, i12, i2]
     }
 }
 
 /// Returns x modulo n (supports negative numbers)
-fn mod2<T: Float>(x: T, n: T) -> T {
+fn mod2(x: f64, n: f64) -> f64 {
     ((x % n) + n) % n
 }
 
 /// Flattens a 2D or 3D array whether its a flat point ([x, y, z]) or object ({ x, y, z })
-pub fn flatten<T: Float, N: Index>(data: &[Vec<Vec<T>>]) -> (Vec<T>, Vec<N>, usize) {
+pub fn flatten(data: &[Vec<Vec<f64>>]) -> (Vec<f64>, Vec<usize>, usize) {
     let mut vertices = Vec::new();
     let mut hole_indices = Vec::new();
-    let mut hole_index = N::zero();
+    let mut hole_index = 0;
     let mut dim = 2; // Assume 2D unless a 3D point is found
 
     for (i, line) in data.iter().enumerate() {
@@ -375,7 +340,7 @@ pub fn flatten<T: Float, N: Index>(data: &[Vec<Vec<T>>]) -> (Vec<T>, Vec<N>, usi
             }
         }
         if i > 0 {
-            hole_index = hole_index + N::from_usize(data[i - 1].len());
+            hole_index += data[i - 1].len();
             hole_indices.push(hole_index);
         }
     }
@@ -384,14 +349,14 @@ pub fn flatten<T: Float, N: Index>(data: &[Vec<Vec<T>>]) -> (Vec<T>, Vec<N>, usi
 }
 
 /// Convert a structure into a 2d vector array
-pub fn convert_2d<T: Float, P: Point2D<T>>(data: &[Vec<P>]) -> Vec<Vec<Vec<T>>> {
+pub fn convert_2d<P: Point2D>(data: &[Vec<P>]) -> Vec<Vec<Vec<f64>>> {
     data.iter()
         .map(|line| line.iter().map(|point| Vec::from([point.x(), point.y()])).collect())
         .collect()
 }
 
 /// Convert a structure into a 3d vector array
-pub fn convert_3d<T: Float, P: Point3D<T>>(data: &[Vec<P>]) -> Vec<Vec<Vec<T>>> {
+pub fn convert_3d<P: Point3D>(data: &[Vec<P>]) -> Vec<Vec<Vec<f64>>> {
     data.iter()
         .map(|line| line.iter().map(|point| Vec::from([point.x(), point.y(), point.z()])).collect())
         .collect()
@@ -399,46 +364,37 @@ pub fn convert_3d<T: Float, P: Point3D<T>>(data: &[Vec<P>]) -> Vec<Vec<Vec<T>>> 
 
 /// Returns a percentage difference between the polygon area and its triangulation area;
 /// used to verify correctness of triangulation
-pub fn deviation<T: Float, N: Index>(
-    data: &[T],
-    hole_indices: &[N],
-    triangles: &[N],
-    dim: usize,
-) -> T {
+pub fn deviation(data: &[f64], hole_indices: &[usize], triangles: &[usize], dim: usize) -> f64 {
     let has_holes = !hole_indices.is_empty();
-    let outer_len = if has_holes { hole_indices[0].into_usize() * dim } else { data.len() };
-    let mut polygon_area = T::abs(signed_area(data, 0, outer_len, dim));
+    let outer_len = if has_holes { hole_indices[0] * dim } else { data.len() };
+    let mut polygon_area = fabs(signed_area(data, 0, outer_len, dim));
 
     if has_holes {
         for i in 0..hole_indices.len() {
-            let start = hole_indices[i].into_usize() * dim;
-            let end = if i < hole_indices.len() - 1 {
-                hole_indices[i + 1].into_usize() * dim
-            } else {
-                data.len()
-            };
-            polygon_area = polygon_area - T::abs(signed_area(data, start, end, dim));
+            let start = hole_indices[i] * dim;
+            let end =
+                if i < hole_indices.len() - 1 { hole_indices[i + 1] * dim } else { data.len() };
+            polygon_area -= fabs(signed_area(data, start, end, dim));
         }
     }
 
-    let mut triangles_area = T::zero();
+    let mut triangles_area = 0.;
     let mut i = 0;
     while i < triangles.len() {
-        let a = triangles[i].into_usize() * dim;
-        let b = triangles[i + 1].into_usize() * dim;
-        let c = triangles[i + 2].into_usize() * dim;
-        triangles_area = triangles_area
-            + T::abs(
-                (data[a] - data[c]) * (data[b + 1] - data[a + 1])
-                    - (data[a] - data[b]) * (data[c + 1] - data[a + 1]),
-            );
+        let a = triangles[i] * dim;
+        let b = triangles[i + 1] * dim;
+        let c = triangles[i + 2] * dim;
+        triangles_area += fabs(
+            (data[a] - data[c]) * (data[b + 1] - data[a + 1])
+                - (data[a] - data[b]) * (data[c + 1] - data[a + 1]),
+        );
         i += 3;
     }
 
-    let zero = T::zero();
+    let zero = 0.;
     if polygon_area == zero && triangles_area == zero {
         zero
     } else {
-        T::abs((triangles_area - polygon_area) / polygon_area)
+        fabs((triangles_area - polygon_area) / polygon_area)
     }
 }

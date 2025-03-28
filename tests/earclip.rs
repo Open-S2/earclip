@@ -3,7 +3,7 @@ use earclip::earclip;
 #[test]
 fn empty() {
     let polygon: Vec<Vec<Vec<f64>>> = vec![];
-    let (vertices, indices) = earclip::<f64, usize>(&polygon, None, None);
+    let (vertices, indices) = earclip(&polygon, None, None);
     assert_eq!(vertices, vec![]);
     assert_eq!(indices, vec![]);
 }
@@ -11,7 +11,7 @@ fn empty() {
 #[test]
 fn simple() {
     let polygon = vec![vec![vec![0.0, 0.0, 0.0], vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 0.0]]];
-    let (vertices, indices) = earclip::<f64, usize>(&polygon, None, None);
+    let (vertices, indices) = earclip(&polygon, None, None);
     assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
     assert_eq!(indices, vec![1, 2, 0]);
 }
@@ -41,7 +41,7 @@ fn flat_points() {
             vec![-1491.0, -1981.0],
         ],
     ];
-    let (vertices, indices) = earclip::<f64, usize>(&geometry, None, None);
+    let (vertices, indices) = earclip(&geometry, None, None);
     assert_eq!(
         vertices,
         vec![
@@ -148,7 +148,7 @@ fn tesselate() {
             vec![-1491.0, -1981.0],
         ],
     ];
-    let (vertices, indices) = earclip::<f64, usize>(&geometry, Some(2048.0), None);
+    let (vertices, indices) = earclip(&geometry, Some(2048.0), None);
     assert_eq!(
         vertices,
         vec![
