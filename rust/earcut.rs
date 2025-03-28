@@ -6,27 +6,23 @@ use libm::fabs;
 
 macro_rules! node {
     ($self:ident.$nodes:ident, $index:expr) => {{
-        let idx = $index as usize;
-        assert!(idx < $self.$nodes.len(), "Index out of bounds");
-        &$self.$nodes[idx]
+        assert!($index < $self.$nodes.len(), "Index out of bounds");
+        &$self.$nodes[$index]
     }};
     ($nodes:ident, $index:expr) => {{
-        let idx = $index as usize;
-        assert!(idx < $nodes.len(), "Index out of bounds");
-        &$nodes[idx]
+        assert!($index < $nodes.len(), "Index out of bounds");
+        &$nodes[$index]
     }};
 }
 
 macro_rules! node_mut {
     ($self:ident.$nodes:ident, $index:expr) => {{
-        let idx = $index as usize;
-        assert!(idx < $self.$nodes.len(), "Index out of bounds");
-        &mut $self.$nodes[idx]
+        assert!($index < $self.$nodes.len(), "Index out of bounds");
+        &mut $self.$nodes[$index]
     }};
     ($nodes:ident, $index:expr) => {{
-        let idx = $index as usize;
-        assert!(idx < $nodes.len(), "Index out of bounds");
-        &mut $nodes[idx]
+        assert!($index < $nodes.len(), "Index out of bounds");
+        &mut $nodes[$index]
     }};
 }
 
@@ -517,7 +513,7 @@ fn cure_local_intersections(
             && locally_inside(nodes, a, b)
             && locally_inside(nodes, b, a)
         {
-            triangles.extend([a.i as usize / dim, p.i as usize / dim, b.i as usize / dim]);
+            triangles.extend([a.i / dim, p.i / dim, b.i / dim]);
 
             let b_next_i = b.next_i;
             remove_node(nodes, p.link_info());
@@ -998,8 +994,8 @@ pub fn signed_area(data: &[f64], start: usize, end: usize, dim: usize) -> f64 {
 /// z-order of a point given coords and inverse of the longer side of data bbox
 fn z_order(xy: [f64; 2], min_x: f64, min_y: f64, inv_size: f64) -> i32 {
     // coords are transformed into non-negative 15-bit integer range
-    let x = ((xy[0] - min_x) * inv_size) as usize;
-    let y = ((xy[1] - min_y) * inv_size) as usize;
+    let x = (xy[0] - min_x) * inv_size;
+    let y = (xy[1] - min_y) * inv_size;
     let mut xy = (x as i64) << 32 | y as i64;
     xy = (xy | (xy << 8)) & 0x00FF00FF00FF00FF;
     xy = (xy | (xy << 4)) & 0x0F0F0F0F0F0F0F0F;
