@@ -30,7 +30,7 @@ pub fn earclip<T: GetXY + GetZ>(
     polygon: &[Vec<T>],
     modulo: Option<f64>,
     offset: Option<usize>,
-) -> (Vec<f64>, Vec<u32>) {
+) -> (Vec<f64>, Vec<usize>) {
     let modulo = modulo.unwrap_or(f64::INFINITY);
     let offset = offset.unwrap_or(0);
 
@@ -44,7 +44,9 @@ pub fn earclip<T: GetXY + GetZ>(
     }
 
     // update offsets
-    let indices = indices.into_iter().map(|index| (index + offset) as u32).collect();
+    for index in indices.iter_mut() {
+        *index += offset;
+    }
 
     (vertices, indices)
 }
