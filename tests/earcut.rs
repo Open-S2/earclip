@@ -1,6 +1,6 @@
 use std::fs;
 
-use earclip::{deviation, earcut, flatten};
+use earclip::{deviation, earcut, flatten_float};
 
 #[test]
 fn indices_2d() {
@@ -42,7 +42,7 @@ fn test_fixture(name: &str, num_triangles: usize, expected_deviation: f64) {
     let expected = serde_json::from_str::<Coords>(&s).unwrap();
 
     // prepare input
-    let (vertices, hole_indices, dim) = flatten(&expected); // dim => dimensions
+    let (vertices, hole_indices, dim) = flatten_float(&expected); // dim => dimensions
 
     let indices: Vec<usize> = earcut(&vertices, &hole_indices, dim);
 

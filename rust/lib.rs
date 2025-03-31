@@ -6,10 +6,10 @@
 //!
 //! Basic usage:
 //! ```rust
-//! use earclip::earclip;
+//! use earclip::earclip_float;
 //!
 //! let polygon = vec![vec![vec![0.0, 0.0, 0.0], vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 0.0]]];
-//! let (vertices, indices) = earclip(&polygon, None, None);
+//! let (vertices, indices) = earclip_float(&polygon, None, None);
 //! assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
 //! assert_eq!(indices, vec![1, 2, 0]);
 //! ```
@@ -23,27 +23,34 @@ use alloc::vec::Vec;
 use core::f64;
 pub use earcut::{earcut, signed_area};
 use libm::fabs;
+pub use s2json::{GetXY, GetZ};
 
-/// A trait that must be implemented by any type that wants to represent a 2D point
-pub trait Point2D {
-    /// Get the x-coordinate
-    fn x(&self) -> f64;
-    /// Get the y-coordinate
-    fn y(&self) -> f64;
-}
+/// An earcut polygon generator with tesselation support
+pub fn earclip<T: GetXY + GetZ>(
+    polygon: &[Vec<T>],
+    modulo: Option<f64>,
+    offset: Option<usize>,
+) -> (Vec<f64>, Vec<u32>) {
+    let modulo = modulo.unwrap_or(f64::INFINITY);
+    let offset = offset.unwrap_or(0);
 
-/// A trait that must be implemented by any type that wants to represent a 3D point
-pub trait Point3D {
-    /// Get the x-coordinate
-    fn x(&self) -> f64;
-    /// Get the y-coordinate
-    fn y(&self) -> f64;
-    /// Get the z-coordinate
-    fn z(&self) -> f64;
+    // Use earcut to build standard triangle set
+    let (mut vertices, hole_indices, dim) = flatten(polygon); // dim => dimensions
+    let mut indices = earcut(&vertices, &hole_indices, dim);
+
+    // tesselate if necessary
+    if modulo != f64::INFINITY {
+        tesselate(&mut vertices, &mut indices, modulo, dim);
+    }
+
+    // update offsets
+    let indices = indices.into_iter().map(|index| (index + offset) as u32).collect();
+
+    (vertices, indices)
 }
 
 /// An earcut polygon generator with tesselation support
-pub fn earclip(
+pub fn earclip_float(
     polygon: &[Vec<Vec<f64>>],
     modulo: Option<f64>,
     offset: Option<usize>,
@@ -52,7 +59,7 @@ pub fn earclip(
     let offset = offset.unwrap_or(0);
 
     // Use earcut to build standard triangle set
-    let (mut vertices, hole_indices, dim) = flatten(polygon); // dim => dimensions
+    let (mut vertices, hole_indices, dim) = flatten_float(polygon); // dim => dimensions
     let mut indices = earcut(&vertices, &hole_indices, dim);
 
     // tesselate if necessary
@@ -323,7 +330,34 @@ fn mod2(x: f64, n: f64) -> f64 {
 }
 
 /// Flattens a 2D or 3D array whether its a flat point ([x, y, z]) or object ({ x, y, z })
-pub fn flatten(data: &[Vec<Vec<f64>>]) -> (Vec<f64>, Vec<usize>, usize) {
+pub fn flatten<T: GetXY + GetZ>(data: &[Vec<T>]) -> (Vec<f64>, Vec<usize>, usize) {
+    let mut vertices = Vec::new();
+    let mut hole_indices = Vec::new();
+    let mut hole_index = 0;
+    let mut dim = 2; // Assume 2D unless a 3D point is found
+    if !data.is_empty() && !data[0].is_empty() && data[0][0].z().is_some() {
+        dim = 3;
+    }
+
+    for (i, line) in data.iter().enumerate() {
+        for point in line {
+            vertices.push(point.x());
+            vertices.push(point.y());
+            if dim == 3 {
+                vertices.push(point.z().unwrap_or_default());
+            }
+        }
+        if i > 0 {
+            hole_index += data[i - 1].len();
+            hole_indices.push(hole_index);
+        }
+    }
+
+    (vertices, hole_indices, dim)
+}
+
+/// Flattens a 2D or 3D array whether its a flat point ([x, y, z]) or object ({ x, y, z })
+pub fn flatten_float(data: &[Vec<Vec<f64>>]) -> (Vec<f64>, Vec<usize>, usize) {
     let mut vertices = Vec::new();
     let mut hole_indices = Vec::new();
     let mut hole_index = 0;
@@ -348,19 +382,23 @@ pub fn flatten(data: &[Vec<Vec<f64>>]) -> (Vec<f64>, Vec<usize>, usize) {
     (vertices, hole_indices, dim)
 }
 
-/// Convert a structure into a 2d vector array
-pub fn convert_2d<P: Point2D>(data: &[Vec<P>]) -> Vec<Vec<Vec<f64>>> {
-    data.iter()
-        .map(|line| line.iter().map(|point| Vec::from([point.x(), point.y()])).collect())
-        .collect()
-}
+// /// Convert a structure into a 2d vector array
+// pub fn convert_2d<P: GetXY>(data: &[Vec<P>]) -> Vec<Vec<Vec<f64>>> {
+//     data.iter()
+//         .map(|line| line.iter().map(|point| Vec::from([point.x(), point.y()])).collect())
+//         .collect()
+// }
 
-/// Convert a structure into a 3d vector array
-pub fn convert_3d<P: Point3D>(data: &[Vec<P>]) -> Vec<Vec<Vec<f64>>> {
-    data.iter()
-        .map(|line| line.iter().map(|point| Vec::from([point.x(), point.y(), point.z()])).collect())
-        .collect()
-}
+// /// Convert a structure into a 3d vector array
+// pub fn convert_3d<P: GetXY + GetZ>(data: &[Vec<P>]) -> Vec<Vec<Vec<f64>>> {
+//     data.iter()
+//         .map(|line| {
+//             line.iter()
+//                 .map(|point| Vec::from([point.x(), point.y(), point.z().unwrap_or_default()]))
+//                 .collect()
+//         })
+//         .collect()
+// }
 
 /// Returns a percentage difference between the polygon area and its triangulation area;
 /// used to verify correctness of triangulation

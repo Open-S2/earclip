@@ -1,4 +1,4 @@
-use earclip::{convert_2d, convert_3d, earclip, Point2D, Point3D};
+use earclip::{earclip, earclip_float, GetXY, GetZ};
 
 #[test]
 fn convert_2d_test() {
@@ -11,7 +11,7 @@ fn convert_2d_test() {
             Self { x, y }
         }
     }
-    impl Point2D for P2D {
+    impl GetXY for P2D {
         fn x(&self) -> f64 {
             self.x
         }
@@ -19,10 +19,14 @@ fn convert_2d_test() {
             self.y
         }
     }
+    impl GetZ for P2D {
+        fn z(&self) -> Option<f64> {
+            None
+        }
+    }
 
     let polygon = vec![vec![P2D::new(0.0, 0.0), P2D::new(1.0, 0.0), P2D::new(0.0, 1.0)]];
-    let poly_2d = convert_2d(&polygon);
-    let (vertices, indices) = earclip(&poly_2d, None, None);
+    let (vertices, indices) = earclip(&polygon, None, None);
     assert_eq!(vertices, vec![0.0, 0.0, 1.0, 0.0, 0.0, 1.0]);
     assert_eq!(indices, vec![1, 2, 0]);
 }
@@ -39,22 +43,23 @@ fn convert_3d_test() {
             Self { x, y, z }
         }
     }
-    impl Point3D for P3D {
+    impl GetXY for P3D {
         fn x(&self) -> f64 {
             self.x
         }
         fn y(&self) -> f64 {
             self.y
         }
-        fn z(&self) -> f64 {
-            self.z
+    }
+    impl GetZ for P3D {
+        fn z(&self) -> Option<f64> {
+            Some(self.z)
         }
     }
 
     let polygon =
         vec![vec![P3D::new(0.0, 0.0, 0.0), P3D::new(1.0, 0.0, 0.0), P3D::new(0.0, 1.0, 0.0)]];
-    let poly = convert_3d(&polygon);
-    let (vertices, indices) = earclip(&poly, None, None);
+    let (vertices, indices) = earclip(&polygon, None, None);
     assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
     assert_eq!(indices, vec![1, 2, 0]);
 }
@@ -62,7 +67,7 @@ fn convert_3d_test() {
 #[test]
 fn empty() {
     let polygon: Vec<Vec<Vec<f64>>> = vec![];
-    let (vertices, indices) = earclip(&polygon, None, None);
+    let (vertices, indices) = earclip_float(&polygon, None, None);
     assert_eq!(vertices, vec![]);
     assert_eq!(indices, vec![]);
 }
@@ -70,7 +75,7 @@ fn empty() {
 #[test]
 fn simple() {
     let polygon = vec![vec![vec![0.0, 0.0, 0.0], vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 0.0]]];
-    let (vertices, indices) = earclip(&polygon, None, None);
+    let (vertices, indices) = earclip_float(&polygon, None, None);
     assert_eq!(vertices, vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
     assert_eq!(indices, vec![1, 2, 0]);
 }
@@ -100,7 +105,7 @@ fn flat_points() {
             vec![-1491.0, -1981.0],
         ],
     ];
-    let (vertices, indices) = earclip(&geometry, None, None);
+    let (vertices, indices) = earclip_float(&geometry, None, None);
     assert_eq!(
         vertices,
         vec![
@@ -207,7 +212,7 @@ fn tesselate() {
             vec![-1491.0, -1981.0],
         ],
     ];
-    let (vertices, indices) = earclip(&geometry, Some(2048.0), None);
+    let (vertices, indices) = earclip_float(&geometry, Some(2048.0), None);
     assert_eq!(
         vertices,
         vec![

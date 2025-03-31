@@ -2,7 +2,7 @@ use std::fs;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use earclip::{earcut, flatten};
+use earclip::{earcut, flatten_float};
 
 fn load_fixture(name: &str) -> (Vec<f64>, Vec<usize>, usize) {
     // load JSON
@@ -11,7 +11,7 @@ fn load_fixture(name: &str) -> (Vec<f64>, Vec<usize>, usize) {
     let expected = serde_json::from_str::<Coords>(&s).unwrap();
 
     // prepare input
-    let (vertices, hole_indices, dim) = flatten(&expected); // dim => dimensions
+    let (vertices, hole_indices, dim) = flatten_float(&expected); // dim => dimensions
 
     (vertices, hole_indices, dim)
 }
