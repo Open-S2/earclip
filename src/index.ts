@@ -1,4 +1,4 @@
-import earcut from './earcut';
+import earcut from './earcut.js';
 
 export { earcut };
 
