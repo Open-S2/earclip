@@ -8,3 +8,4 @@ tsconfig.tsbuildinfo
 target/
 coverage/
 cobertura.xml
+docs/

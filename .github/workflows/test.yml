@@ -6,49 +6,45 @@ jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - name: Set up Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: 1.1.38
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-    - name: Install dependencies
-      run: bun install
+      - run: bun install
+      - run: bun run test
 
-    - name: Run JavaScript/TypeScript tests
-      run: bun run test
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: clippy
 
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        override: true
-        components: rustfmt, clippy
-    
-    - name: Build Rust project
-      run: cargo build
-      shell: bash
+      - run: cargo build
+      - run: cargo clippy -- -D warnings
+      - run: cargo test --workspace
 
-    - name: Run Clippy
-      run: cargo clippy -- -D warnings
-      shell: bash
+  rustfmt:
+    name: Rustfmt check (nightly)
+    runs-on: ubuntu-latest  # Only need one OS for style checks
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - name: Check Formatting
-      run: cargo fmt -- --check
-      shell: bash
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt
 
-    - name: Run Rust tests
-      run: cargo test --lib
-      shell: bash
+      - run: cargo fmt --all -- --check

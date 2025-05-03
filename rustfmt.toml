@@ -16,5 +16,3 @@ newline_style = "Unix"  # Ensure using UNIX-style newlines
 control_brace_style = "AlwaysSameLine"
 # Manage import guidelines
 imports_granularity = "Crate"
-# Manage commenting
-normalize_comments = true

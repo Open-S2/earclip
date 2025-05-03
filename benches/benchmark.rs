@@ -1,8 +1,6 @@
-use std::fs;
-
 use criterion::{criterion_group, criterion_main, Criterion};
-
 use earclip::{earcut, flatten_float};
+use std::fs;
 
 fn load_fixture(name: &str) -> (Vec<f64>, Vec<usize>, usize) {
     // load JSON

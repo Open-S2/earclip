@@ -1,5 +1,3 @@
-extern crate alloc;
-
 use alloc::vec::Vec;
 use core::{borrow::BorrowMut, cmp::Ordering, f64, ptr};
 use libm::fabs;

@@ -1,6 +1,5 @@
-use std::fs;
-
 use earclip::{deviation, earcut, flatten_float};
+use std::fs;
 
 #[test]
 fn indices_2d() {
