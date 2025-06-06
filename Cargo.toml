@@ -1,12 +1,12 @@
 [package]
 name = "earclip"
-version = "1.6.0"
+version = "1.6.1"
 edition = "2021"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "Triangle mesh designed to be fast, efficient, and sphere capable."
 documentation = "https://docs.rs/earclip"
-homepage = "https://github.com/OpenS2/earclip"
-repository = "https://github.com/OpenS2/earclip"
+homepage = "https://github.com/Open-S2/earclip"
+repository = "https://github.com/Open-S2/earclip"
 readme = "README.md"
 categories = ["no-std", "algorithms"]
 keywords = ["earclip", "earcut", "gis", "low-cost-code"]
