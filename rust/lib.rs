@@ -78,18 +78,19 @@ pub fn earclip_float(
 /// Tesselates the flattened polygon
 pub fn tesselate(vertices: &mut Vec<f64>, indices: &mut Vec<usize>, modulo: f64, dim: usize) {
     for axis in 0..dim {
-        let mut i = 0;
-        while i < indices.len() {
-            let a = indices[i];
-            let b = indices[i + 1];
-            let c = indices[i + 2];
+        let mut i: isize = 0;
+        while i < indices.len() as isize {
+            let i_index = i as usize;
+            let a = indices[i_index];
+            let b = indices[i_index + 1];
+            let c = indices[i_index + 2];
 
             if let Some(new_triangle) =
                 split_if_necessary(a, b, c, vertices, indices, dim, axis, modulo)
             {
-                indices[i] = new_triangle[0];
-                indices[i + 1] = new_triangle[1];
-                indices[i + 2] = new_triangle[2];
+                indices[i_index] = new_triangle[0];
+                indices[i_index + 1] = new_triangle[1];
+                indices[i_index + 2] = new_triangle[2];
                 i -= 3;
             }
 

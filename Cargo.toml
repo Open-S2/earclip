@@ -1,7 +1,8 @@
 [package]
 name = "earclip"
-version = "1.6.1"
-edition = "2021"
+version = "1.7.0"
+rust-version = "1.88.0"
+edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "Triangle mesh designed to be fast, efficient, and sphere capable."
 documentation = "https://docs.rs/earclip"
