@@ -416,13 +416,10 @@ fn is_ear_hashed<'a>(
     let mut o_n = ear.next_z_i.map(|i| node!(nodes, i));
 
     // look for points inside the triangle in both directions
-    loop {
-        let Some(p) = o_p else { break };
-        if p.z < min_z {
-            break;
-        };
-        let Some(n) = o_n else { break };
-        if n.z > max_z {
+    while let Some(p) = o_p
+        && let Some(n) = o_n
+    {
+        if p.z < min_z || n.z > max_z {
             break;
         };
 

@@ -1,10 +1,33 @@
 #![no_std]
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
+//! # earclip
+//!
+//! ## Description
+//!
 //! The `earclip` module is a tool to convert 2D and 3D polygons into a triangle mesh designed to be
 //! fast, efficient, and sphere capable.
 //!
-//! Basic usage:
+//! ## Install
+//!
+//! ```bash
+//! cargo add earclip
+//! ```
+//!
+//! ## Usage
+//!
+//! This crate takes advantage of the [`s2json::GetXY`] and [`s2json::GetZ`] traits for 2D and 3D
+//! polygon triangulation. If you need to use your own 2D and 3D polygon types, just implement
+//! those traits for them.
+//!
+//! - [`crate::earclip`]: for 2D and 3D polygon triangulation
+//! - [`crate::earclip_float`]: for 2D and 3D polygon triangulation on flattened f64 data
+//! - [`crate::tesselate`]: for tesselating a flattened polygon
+//! - [`crate::flatten`]: for flattening a 2D or 3D polygon
+//! - [`crate::flatten_float`]: for flattening a 2D or 3D polygon whose points are f64 vectors
+//!
+//! ## Example
+//!
 //! ```rust
 //! use earclip::earclip_float;
 //!

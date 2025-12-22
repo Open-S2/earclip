@@ -68,8 +68,8 @@ fn convert_3d_test() {
 fn empty() {
     let polygon: Vec<Vec<Vec<f64>>> = vec![];
     let (vertices, indices) = earclip_float(&polygon, None, None);
-    assert_eq!(vertices, vec![]);
-    assert_eq!(indices, vec![]);
+    assert_eq!(vertices, vec![] as Vec<f64>);
+    assert_eq!(indices, vec![] as Vec<usize>);
 }
 
 #[test]
