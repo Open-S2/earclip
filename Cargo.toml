@@ -15,15 +15,15 @@ license = "MIT"
 # Include only specific files and directories
 # include = ["/ovtile", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
 exclude = [
-    "/assets",
-    "/benchmarks",
-    "/coverage",
-    "/docs",
-    "/tests",
-    "/tools",
-    "/src",
-    ".github",
-    ".helix"
+  "/assets",
+  "/benchmarks",
+  "/coverage",
+  "/docs",
+  "/tests",
+  "/tools",
+  "/src",
+  ".github",
+  ".helix",
 ]
 
 [lib]

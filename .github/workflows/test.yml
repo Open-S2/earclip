@@ -34,7 +34,7 @@ jobs:
 
   rustfmt:
     name: Rustfmt check (nightly)
-    runs-on: ubuntu-latest  # Only need one OS for style checks
+    runs-on: ubuntu-latest # Only need one OS for style checks
     steps:
       - uses: actions/checkout@v4
         with:

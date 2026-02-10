@@ -25,11 +25,11 @@
   ],
   "scripts": {
     "lint+build+test+docs": "bun run lint && bun run build && bun run test && bun run docs",
-    "lint": "eslint src tests",
+    "lint": "oxlint src tests",
     "lint:fix": "bun run lint -- --fix",
-    "prettier": "bunx prettier src test tools benchmarks --check",
-    "prettier:fix": "bunx prettier -- --write",
-    "format": "bunx prettier:fix && bun run lint:fix",
+    "fmt": "bunx oxfmt src test tools benchmarks --check",
+    "fmt:fix": "bunx oxfmt -- --write",
+    "format": "bunx oxfmt:fix && bun run lint:fix",
     "build": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && tsc && bun run build.ts",
     "types:bundle": "bun run types:build && node scripts/types.mjs",
     "prepublishOnly": "bun run lint+build+test+docs",
@@ -51,19 +51,17 @@
   "homepage": "https://github.com/Open-S2/earclip#readme",
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
-    "@types/bun": "^1.3.5",
-    "@types/node": "^25.0.3",
+    "@types/bun": "^1.3.8",
+    "@types/node": "^25.2.2",
     "@types/pbf": "^3.0.5",
     "coveralls": "^3.1.1",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsdoc": "^61.5.0",
-    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-jsdoc": "^62.5.4",
     "eslint-plugin-tsdoc": "^0.5.0",
-    "prettier": "^3.7.4",
-    "typedoc": "^0.28.15",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
+    "typedoc": "^0.28.16",
     "typedoc-plugin-coverage": "^4.0.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "typescript-eslint": "^8.55.0"
   }
 }

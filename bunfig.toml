@@ -12,5 +12,5 @@ coverage = true
 
 # new
 # coverageReporter = ["text", "lcov"]  # default ["text"]
-coverageReporter = ["lcov"]  # default ["text"]
-coverageDir = "./coverage"  # default "coverage"
+coverageReporter = ["lcov"] # default ["text"]
+coverageDir = "./coverage" # default "coverage"

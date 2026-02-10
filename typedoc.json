@@ -12,5 +12,5 @@
   "excludeNotDocumented": true,
   "hideGenerator": true,
   "disableSources": true,
-  "coverageOutputPath": "assets/doc-coverage.svg",
+  "coverageOutputPath": "assets/doc-coverage.svg"
 }
